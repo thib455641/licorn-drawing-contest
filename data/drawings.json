@@ -1,0 +1,29 @@
+[
+    {
+    "id": "123456789012345678",
+    "filename": "IMG_20260930_041545.jpg",
+    "local_path": "./images/drawings/IMG_20260930_041545.jpg",
+    "author_display_name": "ArtisteDu78",
+    "created_at": "2026-10-09T14:30:00.000Z",
+    "contest_id": "concours_1",
+    "contest_title": "Hello"
+    } ,   
+    {
+    "id": "123456789012345679",
+    "filename": "Sans_titre_79_20260905214849.png",
+    "local_path": "./images/drawings/Sans_titre_79_20260905214849.png",
+    "author_display_name": "ArtisteDu93",
+    "created_at": "2026-10-25T14:30:00.000Z",
+    "contest_id": "concours_1",
+    "contest_title": "Hello"
+    },
+    {
+    "id": "123456789012345680",
+    "filename": "Sans_titre_79_20260906145637.png",
+    "local_path": "./images/drawings/Sans_titre_79_20260906145637.png",
+    "author_display_name": "ArtisteDu78",
+    "created_at": "2026-11-09T14:30:00.000Z",
+    "contest_id": "concours_2",
+    "contest_title": "World"
+    }
+]
