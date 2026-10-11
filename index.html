@@ -3,17 +3,41 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Galerie des Concours de Dessin</title>
+  <title>LicornKibri's Contests</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+  <!-- HEADER ET NAVIGATION -->
   <header>
-    <h1>Les Concours de dessins de Licornkibri</h1>
+    <h1>LicornKibri's contests</h1>
+    <nav class="navbar">
+      <div class="nav-links">
+        <a href="#" id="nav-home" class="active">Accueil</a>
+        <a href="#" id="nav-contests">CONCOURS</a>
+        <a href="#" id="nav-artists">ARTISTES</a>
+        
+        <!-- Menu déroulant Liens -->
+        <div class="dropdown">
+          <button class="dropdown-btn">LIENS ▾</button>
+          <div class="dropdown-content">
+            <a href="https://discord.gg/CPRnPhcCJe" target="_blank">DISCORD</a>
+            <a href="https://www.twitch.tv/licornkibri_" target="_blank">TWITCH</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Barre de recherche -->
+      <div class="search-box">
+        <input type="text" placeholder="Rechercher...">
+        <button type="button">🔍</button>
+      </div>
+    </nav>
   </header>
 
-  <main id="contests-container">
-    <p class="loading">Chargement des concours et des dessins...</p>
+  <!-- CONTENU DYNAMIQUE DE LA PAGE -->
+  <main id="main-content">
+    <p class="loading">Chargement du contenu...</p>
   </main>
 
   <script src="app.js"></script>

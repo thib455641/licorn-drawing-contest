@@ -1,160 +1,216 @@
+let allContests = [];
+let allDrawings = [];
+
 document.addEventListener("DOMContentLoaded", () => {
-  initGallery();
+  initApp();
 });
 
-async function initGallery() {
-  const container = document.getElementById("contests-container");
-
+async function initApp() {
   try {
-    // 1. Charger les deux fichiers JSON en parallèle
-    const [contestsResponse, drawingsResponse] = await Promise.all([
+    const [contestsRes, drawingsRes] = await Promise.all([
       fetch("./data/contests.json"),
       fetch("./data/drawings.json")
     ]);
 
-    if (!contestsResponse.ok || !drawingsResponse.ok) {
-      throw new Error("Impossible de charger les fichiers JSON.");
-    }
+    if (!contestsRes.ok || !drawingsRes.ok) throw new Error("Erreur de chargement JSON");
 
-    const contests = await contestsResponse.json();
-    const drawings = await drawingsResponse.json();
+    allContests = await contestsRes.json();
+    allDrawings = await drawingsRes.json();
 
-    // 2. Trier les concours du plus récent au plus ancien
-    contests.sort((a, b) => new Date(b.start_date) - new Date(a.start_date));
+    // Tri des concours par date de début
+    allContests.sort((a, b) => new Date(b.start_date) - new Date(a.start_date));
 
-    // Vider le message de chargement
-    container.innerHTML = "";
+    // Gestion des clics de navigation
+    document.getElementById("nav-home").addEventListener("click", (e) => { e.preventDefault(); renderHome(); });
+    document.getElementById("nav-contests").addEventListener("click", (e) => { e.preventDefault(); renderContestsPage(); });
+    document.getElementById("nav-artists").addEventListener("click", (e) => { e.preventDefault(); renderArtistsPage(); });
 
-    if (contests.length === 0) {
-      container.innerHTML = "<p>Aucun concours disponible pour le moment.</p>";
-      return;
-    }
+    // Afficher la page d'accueil par défaut
+    renderHome();
 
-    // 3. Parcourir chaque concours pour afficher ses informations et ses dessins
-    contests.forEach((contest, index) => {
-      // La date de début
-      const startDate = new Date(contest.start_date);
-      const formattedStartDate = formatDate(startDate);
-
-      // La date de fin correspond au début du concours suivant (plus récent chronologiquement dans la liste originale)
-      // Comme la liste est triée du plus récent au plus ancien, le concours chronologiquement suivant est l'élément précédent dans le tableau (index - 1)
-      let formattedEndDate = "En cours";
-      if (index > 0) {
-        const endDate = new Date(contests[index - 1].start_date);
-        formattedEndDate = formatDate(endDate);
-      }
-
-      // Filtrer les dessins appartenant à ce concours
-      const contestDrawings = drawings.filter(
-        (drawing) => drawing.contest_id === contest.id
-      );
-
-      // Créer la section du concours
-      const contestSection = document.createElement("section");
-      contestSection.classList.add("contest-section");
-
-      // HTML de l'en-tête du concours
-      let sectionHTML = `
-        <div class="contest-header">
-          <h2>${escapeHtml(contest.title)}</h2>
-          <p class="contest-dates">
-            📅 Du <strong>${formattedStartDate}</strong> au <strong>${formattedEndDate}</strong>
-          </p>
-        </div>
-      `;
-
-      // HTML de la grille de dessins
-      if (contestDrawings.length > 0) {
-        sectionHTML += `<div class="drawings-grid">`;
-        
-        contestDrawings.forEach((drawing) => {
-          const drawingDate = formatDate(new Date(drawing.created_at));
-
-          sectionHTML += `
-            <div class="drawing-card">
-              <div class="drawing-image-wrapper">
-                <img src="${escapeHtml(drawing.local_path)}" alt="Dessin de ${escapeHtml(drawing.author_display_name)}" loading="lazy">
-              </div>
-              <div class="drawing-info">
-                <p class="author">👤 <strong>${escapeHtml(drawing.author_display_name)}</strong></p>
-                <p class="date">🕒 ${drawingDate}</p>
-              </div>
-            </div>
-          `;
-        });
-
-        sectionHTML += `</div>`;
-      } else {
-        sectionHTML += `<p class="no-drawings">Aucun dessin soumis pour ce concours pour l'instant.</p>`;
-      }
-
-      contestSection.innerHTML = sectionHTML;
-      container.appendChild(contestSection);
-    });
-
-    // 4. Traiter les dessins "hors concours" s'il y en a
-    const orphanDrawings = drawings.filter(
-      (drawing) => drawing.contest_id === "hors_concours" || !drawing.contest_id
-    );
-
-    if (orphanDrawings.length > 0) {
-      const orphanSection = document.createElement("section");
-      orphanSection.classList.add("contest-section", "hors-concours");
-
-      let orphanHTML = `
-        <div class="contest-header">
-          <h2>Dessins Hors Concours</h2>
-        </div>
-        <div class="drawings-grid">
-      `;
-
-      orphanDrawings.forEach((drawing) => {
-        const drawingDate = formatDate(new Date(drawing.created_at));
-        orphanHTML += `
-          <div class="drawing-card">
-            <div class="drawing-image-wrapper">
-              <img src="${escapeHtml(drawing.local_path)}" alt="Dessin de ${escapeHtml(drawing.author_display_name)}" loading="lazy">
-            </div>
-            <div class="drawing-info">
-              <p class="author">👤 <strong>${escapeHtml(drawing.author_display_name)}</strong></p>
-              <p class="date">🕒 ${drawingDate}</p>
-            </div>
-          </div>
-        `;
-      });
-
-      orphanHTML += `</div>`;
-      orphanSection.innerHTML = orphanHTML;
-      container.appendChild(orphanSection);
-    }
-
-  } catch (error) {
-    console.error("Erreur lors de l'initialisation de la galerie :", error);
-    container.innerHTML = `<p class="error">Erreur d'affichage de la galerie. Vérifiez que les fichiers JSON sont accessibles.</p>`;
+  } catch (err) {
+    console.error(err);
+    document.getElementById("main-content").innerHTML = `<p class="error">Erreur lors de la récupération des données.</p>`;
   }
 }
 
-/**
- * Fonction utilitaire pour meubler proprement le formatage de date en français
- */
-function formatDate(date) {
-  if (isNaN(date.getTime())) return "Date inconnue";
-  return new Intl.DateTimeFormat("fr-FR", {
-    day: "numeric",
-    month: "long",
-    year: "numeric"
-  }).format(date);
+// Helper pour mettre la classe 'active' sur le menu
+function setActiveNav(navId) {
+  document.querySelectorAll(".nav-links a").forEach(a => a.classList.remove("active"));
+  if (navId) document.getElementById(navId)?.classList.add("active");
 }
 
-/**
- * Sécurisation contre l'injection HTML (XSS)
- */
+/* ==========================================================================
+   1. PAGE ACCUEIL : CONCOURS & LEURS DESSINS (RANGÉS PAR LIGNES DE 5)
+   ========================================================================== */
+function renderHome() {
+  setActiveNav("nav-home");
+  const main = document.getElementById("main-content");
+  main.innerHTML = "";
+
+  allContests.forEach((contest, index) => {
+    const startDate = formatDate(new Date(contest.start_date));
+    let endDate = "En cours";
+    if (index > 0) {
+      endDate = formatDate(new Date(allContests[index - 1].start_date));
+    } else if (contest.end_date) {
+      endDate = formatDate(new Date(contest.end_date));
+    }
+
+    const contestDrawings = allDrawings.filter(d => d.contest_id === contest.id);
+
+    const section = document.createElement("section");
+    section.innerHTML = `
+      <h2 class="contest-title-header">${escapeHtml(contest.title)}</h2>
+      <p class="contest-dates">📅 Du ${startDate} au ${endDate}</p>
+      <div class="grid-5" id="grid-${contest.id}"></div>
+    `;
+    main.appendChild(section);
+
+    const grid = section.querySelector(`#grid-${contest.id}`);
+    contestDrawings.forEach(drawing => {
+      grid.appendChild(createDrawingCard(drawing));
+    });
+  });
+
+  // Section Hors Concours
+  const orphanDrawings = allDrawings.filter(d => d.contest_id === "hors_concours" || !d.contest_id);
+  if (orphanDrawings.length > 0) {
+    const orphanSection = document.createElement("section");
+    orphanSection.innerHTML = `
+      <h2 class="contest-title-header">Hors Concours</h2>
+      <div class="grid-5" id="grid-hors-concours"></div>
+    `;
+    main.appendChild(orphanSection);
+
+    const orphanGrid = orphanSection.querySelector("#grid-hors-concours");
+    orphanDrawings.forEach(drawing => orphanGrid.appendChild(createDrawingCard(drawing)));
+  }
+}
+
+/* ==========================================================================
+   2. PAGE ARTISTES : PHOTOS DE PROFIL RONDES (PFP) EN GRILLE DE 5
+   ========================================================================== */
+function renderArtistsPage() {
+  setActiveNav("nav-artists");
+  const main = document.getElementById("main-content");
+  main.innerHTML = `<h2 class="contest-title-header">Liste des Artistes</h2><div class="grid-5" id="artists-grid"></div>`;
+
+  const grid = document.getElementById("artists-grid");
+
+  // Extraire la liste unique des artistes avec leur photo (champ pfp)
+  const artistsMap = new Map();
+  allDrawings.forEach(d => {
+    if (!artistsMap.has(d.author_display_name)) {
+      artistsMap.set(d.author_display_name, d.pfp || "broken_pfp_link.png");
+    }
+  });
+
+  artistsMap.forEach((pfpUrl, artistName) => {
+    const card = document.createElement("div");
+    card.classList.add("artist-card");
+    card.innerHTML = `
+      <img src="${escapeHtml(pfpUrl)}" alt="${escapeHtml(artistName)}" class="artist-pfp" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\'><circle cx=\'50\' cy=\'50\' r=\'45\' fill=\'%23ccc\'/><text x=\'50%\' y=\'55%\' font-size=\'12\' text-anchor=\'middle\' fill=\'%23666\'>Photo</text></svg>'">
+      <div class="artist-name">${escapeHtml(artistName)}</div>
+    `;
+    card.addEventListener("click", () => renderArtistFiltered(artistName));
+    grid.appendChild(card);
+  });
+}
+
+/* ==========================================================================
+   3. PAGE CONCOURS : VIGNETTES DES CONCOURS (IMAGE) EN GRILLE DE 5
+   ========================================================================== */
+function renderContestsPage() {
+  setActiveNav("nav-contests");
+  const main = document.getElementById("main-content");
+  main.innerHTML = `<h2 class="contest-title-header">Tous les Concours</h2><div class="grid-5" id="contests-grid"></div>`;
+
+  const grid = document.getElementById("contests-grid");
+
+  allContests.forEach(contest => {
+    const card = document.createElement("div");
+    card.classList.add("contest-card");
+    
+    // Requête vers le champ `image` dans contests.json
+    const contestImgUrl = contest.image || "broken_contest_image.png";
+
+    card.innerHTML = `
+      <img src="${escapeHtml(contestImgUrl)}" alt="${escapeHtml(contest.title)}" class="contest-card-img" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'200\' height=\'150\'><rect width=\'100%\' height=\'100%\' fill=\'%23eee\'/><text x=\'50%\' y=\'50%\' font-size=\'14\' text-anchor=\'middle\' fill=\'%23999\'>Image Concours</text></svg>'">
+      <div class="contest-card-title">${escapeHtml(contest.title)}</div>
+    `;
+    card.addEventListener("click", () => renderContestFiltered(contest.id, contest.title));
+    grid.appendChild(card);
+  });
+}
+
+/* ==========================================================================
+   4. VUE FILTRÉE : DESSINS D'UN ARTISTE PRÉCIS
+   ========================================================================== */
+function renderArtistFiltered(artistName) {
+  setActiveNav(null);
+  const main = document.getElementById("main-content");
+  main.innerHTML = `
+    <h2 class="contest-title-header">Dessins de : ${escapeHtml(artistName)}</h2>
+    <div class="grid-5" id="filtered-grid"></div>
+  `;
+
+  const grid = document.getElementById("filtered-grid");
+  const artistDrawings = allDrawings.filter(d => d.author_display_name === artistName);
+
+  artistDrawings.forEach(drawing => {
+    grid.appendChild(createDrawingCard(drawing));
+  });
+}
+
+/* ==========================================================================
+   5. VUE FILTRÉE : DESSINS D'UN CONCOURS PRÉCIS
+   ========================================================================== */
+function renderContestFiltered(contestId, contestTitle) {
+  setActiveNav(null);
+  const main = document.getElementById("main-content");
+  main.innerHTML = `
+    <h2 class="contest-title-header">Concours : ${escapeHtml(contestTitle)}</h2>
+    <div class="grid-5" id="filtered-grid"></div>
+  `;
+
+  const grid = document.getElementById("filtered-grid");
+  const contestDrawings = allDrawings.filter(d => d.contest_id === contestId);
+
+  contestDrawings.forEach(drawing => {
+    grid.appendChild(createDrawingCard(drawing));
+  });
+}
+
+/* ==========================================================================
+   UTILITAIRES
+   ========================================================================== */
+function createDrawingCard(drawing) {
+  const card = document.createElement("div");
+  card.classList.add("drawing-card");
+  card.innerHTML = `
+    <div class="drawing-image-wrapper">
+      <img src="${escapeHtml(drawing.local_path)}" alt="Dessin" loading="lazy">
+    </div>
+    <div class="drawing-info">
+      <p><span class="author-link">${escapeHtml(drawing.author_display_name)}</span></p>
+      <p class="date">${formatDate(new Date(drawing.created_at))}</p>
+    </div>
+  `;
+
+  //card.querySelector(".author-link").addEventListener("click", () => {
+  //  renderArtistFiltered(drawing.author_display_name);
+  //});
+
+  return card;
+}
+
+function formatDate(date) {
+  if (isNaN(date.getTime())) return "Date inconnue";
+  return new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short", year: "numeric" }).format(date);
+}
+
 function escapeHtml(text) {
   if (!text) return "";
-  return text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
 }

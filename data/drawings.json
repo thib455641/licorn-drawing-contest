@@ -4,6 +4,7 @@
     "filename": "1554885494985199677.jpg",
     "local_path": "./images/drawings/1554885494985199677.jpg",
     "author_display_name": "MaaLyx",
+    "pfp": "./images/pfp/792762151467089940.png",
     "created_at": "2026-09-30T15:59:50.606000+00:00",
     "contest_id": "concours_1",
     "contest_title": "Illusion carnival"
@@ -13,6 +14,7 @@
     "filename": "1554893199997145088.jpg",
     "local_path": "./images/drawings/1554893199997145088.jpg",
     "author_display_name": "MaaLyx",
+    "pfp": "./images/pfp/792762151467089940.png",
     "created_at": "2026-09-30T16:30:27.887000+00:00",
     "contest_id": "concours_1",
     "contest_title": "Illusion carnival"
@@ -22,6 +24,7 @@
     "filename": "1554893201565950083.jpg",
     "local_path": "./images/drawings/1554893201565950083.jpg",
     "author_display_name": "MaaLyx",
+    "pfp": "./images/pfp/792762151467089940.png",
     "created_at": "2026-09-30T16:30:27.887000+00:00",
     "contest_id": "concours_1",
     "contest_title": "Illusion carnival"
@@ -31,6 +34,7 @@
     "filename": "1554894178037661796.jpg",
     "local_path": "./images/drawings/1554894178037661796.jpg",
     "author_display_name": "Lupin 0607",
+    "pfp": "./images/pfp/1489255805529096404.png",
     "created_at": "2026-09-30T16:34:21.109000+00:00",
     "contest_id": "concours_1",
     "contest_title": "Illusion carnival"
@@ -40,6 +44,7 @@
     "filename": "1554894179468050513.jpg",
     "local_path": "./images/drawings/1554894179468050513.jpg",
     "author_display_name": "Lupin 0607",
+    "pfp": "./images/pfp/1489255805529096404.png",
     "created_at": "2026-09-30T16:34:21.109000+00:00",
     "contest_id": "concours_1",
     "contest_title": "Illusion carnival"
@@ -49,6 +54,7 @@
     "filename": "1554896651569725450.jpg",
     "local_path": "./images/drawings/1554896651569725450.jpg",
     "author_display_name": "70 72 6F 75 74",
+    "pfp": "./images/pfp/804241677639352320.png",
     "created_at": "2026-09-30T16:44:10.530000+00:00",
     "contest_id": "concours_1",
     "contest_title": "Illusion carnival"
@@ -58,6 +64,7 @@
     "filename": "1555154486174154833.jpg",
     "local_path": "./images/drawings/1555154486174154833.jpg",
     "author_display_name": "Licornkibri",
+    "pfp": "./images/pfp/759766636520931328.png",
     "created_at": "2026-10-01T09:48:43.014000+00:00",
     "contest_id": "concours_1",
     "contest_title": "Illusion carnival"
@@ -67,6 +74,7 @@
     "filename": "1556991760302084117.jpg",
     "local_path": "./images/drawings/1556991760302084117.jpg",
     "author_display_name": "Lupin 0607",
+    "pfp": "./images/pfp/1489255805529096404.png",
     "created_at": "2026-10-06T11:29:23.512000+00:00",
     "contest_id": "concours_1",
     "contest_title": "Illusion carnival"
@@ -76,17 +84,19 @@
     "filename": "1557812948859232416.jpg",
     "local_path": "./images/drawings/1557812948859232416.jpg",
     "author_display_name": "Dadouss_93",
+    "pfp": "./images/pfp/1241729961233092630.png",
     "created_at": "2026-10-08T17:52:29.904000+00:00",
     "contest_id": "hors_concours",
-    "contest_title": "Hors Concours"
+    "contest_title": "Hors concours"
   },
   {
     "id": "1558290193339908148",
     "filename": "1558290193339908148.png",
     "local_path": "./images/drawings/1558290193339908148.png",
     "author_display_name": "70 72 6F 75 74",
+    "pfp": "./images/pfp/804241677639352320.png",
     "created_at": "2026-10-10T01:28:53.821000+00:00",
-    "contest_id": "concours_3",
-    "contest_title": "test2"
+    "contest_id": "hors_concours",
+    "contest_title": "Hors concours"
   }
 ]
