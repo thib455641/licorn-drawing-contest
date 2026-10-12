@@ -74,7 +74,7 @@ function renderHome() {
   });
 
   // Section Hors Concours
-  const orphanDrawings = allDrawings.filter(d => d.contest_id === "hors_concours" || !d.contest_id);
+  const orphanDrawings = allDrawings.filter(d => d.contest_id === "hors_concours" );
   if (orphanDrawings.length > 0) {
     const orphanSection = document.createElement("section");
     orphanSection.innerHTML = `
@@ -107,14 +107,16 @@ function renderArtistsPage() {
   });
 
   artistsMap.forEach((pfpUrl, artistName) => {
-    const card = document.createElement("div");
-    card.classList.add("artist-card");
-    card.innerHTML = `
-      <img src="${escapeHtml(pfpUrl)}" alt="${escapeHtml(artistName)}" class="artist-pfp" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\'><circle cx=\'50\' cy=\'50\' r=\'45\' fill=\'%23ccc\'/><text x=\'50%\' y=\'55%\' font-size=\'12\' text-anchor=\'middle\' fill=\'%23666\'>Photo</text></svg>'">
-      <div class="artist-name">${escapeHtml(artistName)}</div>
-    `;
-    card.addEventListener("click", () => renderArtistFiltered(artistName));
-    grid.appendChild(card);
+    if(artistName!=""){
+      const card = document.createElement("div");
+      card.classList.add("artist-card");
+      card.innerHTML = `
+        <img src="${escapeHtml(pfpUrl)}" alt="${escapeHtml(artistName)}" class="artist-pfp" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\'><circle cx=\'50\' cy=\'50\' r=\'45\' fill=\'%23ccc\'/><text x=\'50%\' y=\'55%\' font-size=\'12\' text-anchor=\'middle\' fill=\'%23666\'>Photo</text></svg>'">
+        <div class="artist-name">${escapeHtml(artistName)}</div>
+      `;
+      card.addEventListener("click", () => renderArtistFiltered(artistName));
+      grid.appendChild(card);
+    }
   });
 }
 
@@ -190,15 +192,23 @@ function createDrawingCard(drawing) {
   card.classList.add("drawing-card");
   card.innerHTML = `
     <div class="drawing-image-wrapper">
-      <img src="${escapeHtml(drawing.local_path)}" alt="Dessin" loading="lazy">
+      <img src="${escapeHtml(drawing.local_path)}" alt="Dessin" loading="lazy" style="cursor: pointer;">
     </div>
     <div class="drawing-info">
-      <p><span class="author-link">${escapeHtml(drawing.author_display_name)}</span></p>
+      <p><span class="author-link" style="cursor: pointer;">${escapeHtml(drawing.author_display_name)}</span></p>
       <p class="date">${formatDate(new Date(drawing.created_at))}</p>
     </div>
   `;
 
-  //card.querySelector(".author-link").addEventListener("click", () => {
+  // Clic sur l'image -> Ouvre l'image en gros plan
+  const imgElement = card.querySelector(".drawing-image-wrapper img");
+  imgElement.addEventListener("click", () => {
+    openLightbox(drawing.local_path, `Dessin de ${drawing.author_display_name}`);
+  });
+
+  // Clic sur le nom de l'artiste -> Filtre par artiste
+  //const authorLink = card.querySelector(".author-link");
+  //authorLink.addEventListener("click", () => {
   //  renderArtistFiltered(drawing.author_display_name);
   //});
 
@@ -213,4 +223,50 @@ function formatDate(date) {
 function escapeHtml(text) {
   if (!text) return "";
   return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+}
+/* ==========================================================================
+   LIGHTBOX (AGRANDISSEMENT D'IMAGE SUR FOND NOIR)
+   ========================================================================== */
+function openLightbox(imageSrc, imageAlt = "Dessin") {
+  let lightbox = document.getElementById("lightbox-modal");
+
+  // Si la lightbox n'existe pas encore dans le DOM, on la crée
+  if (!lightbox) {
+    lightbox = document.createElement("div");
+    lightbox.id = "lightbox-modal";
+    lightbox.style.position = "fixed";
+    lightbox.style.top = "0";
+    lightbox.style.left = "0";
+    lightbox.style.width = "100vw";
+    lightbox.style.height = "100vh";
+    lightbox.style.backgroundColor = "rgba(0, 0, 0, 0.85)";
+    lightbox.style.display = "flex";
+    lightbox.style.justifyContent = "center";
+    lightbox.style.alignItems = "center";
+    lightbox.style.zIndex = "1000";
+    lightbox.style.cursor = "pointer";
+
+    const img = document.createElement("img");
+    img.id = "lightbox-img";
+    img.style.maxWidth = "90%";
+    img.style.maxHeight = "90%";
+    img.style.objectFit = "contain";
+    img.style.borderRadius = "4px";
+    img.style.boxShadow = "0 0 20px rgba(0,0,0,0.5)";
+
+    lightbox.appendChild(img);
+
+    // Clic n'importe où sur l'écran pour fermer
+    lightbox.addEventListener("click", () => {
+      lightbox.style.display = "none";
+    });
+
+    document.body.appendChild(lightbox);
+  }
+
+  // Mettre à jour l'image et afficher la lightbox
+  const lightboxImg = document.getElementById("lightbox-img");
+  lightboxImg.src = imageSrc;
+  lightboxImg.alt = imageAlt;
+  lightbox.style.display = "flex";
 }
