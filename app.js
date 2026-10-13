@@ -62,7 +62,7 @@ function renderHome() {
     const section = document.createElement("section");
     section.innerHTML = `
       <h2 class="contest-title-header">${escapeHtml(contest.title)}</h2>
-      <p class="contest-dates">📅 Du ${startDate} au ${endDate}</p>
+      <p class="contest-dates">Du ${startDate} au ${endDate}</p>
       <div class="grid-5" id="grid-${contest.id}"></div>
     `;
     main.appendChild(section);

@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 import aiohttp
 
 # --- CONFIGURATION ---
-TOKEN_DISCORD = "M...8"
+TOKEN_DISCORD = "M***8"
 CHANNEL_ID = 1544700845180981268
 DOWNLOAD_FOLDER = "./images/drawings"
 PFP_FOLDER = "./images/pfp"
@@ -79,9 +79,9 @@ async def new_contest(ctx, *, title: str):
     
     # Message d'annonce à publier
     announcement = (""
-#        f"@everyone \n un nouveau concours est lancé !!! \n"
-#        f"le thème du concours est **{title}** alors balancez vos plus belles créations sur le sujet pour essayer de gagner !!! \n"
-#        f"(Début : {now_iso[:10]})"
+        f"@everyone \n un nouveau concours est lancé !!! \n"
+        f"le thème du concours est **{title}** alors balancez vos plus belles créations sur le sujet pour essayer de gagner !!! \n"
+        f"(Début : {now_iso[:10]})"
     )
 
     if target_channel:
