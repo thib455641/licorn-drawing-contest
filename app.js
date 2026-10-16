@@ -269,4 +269,20 @@ function openLightbox(imageSrc, imageAlt = "Dessin") {
   lightboxImg.src = imageSrc;
   lightboxImg.alt = imageAlt;
   lightbox.style.display = "flex";
+
+
+}
+function setActiveNav(navId) {
+  // Retire la classe 'active' de TOUS les liens de la navbar
+  document.querySelectorAll(".navbar a").forEach(a => {
+    a.classList.remove("active");
+  });
+
+  // Ajoute la classe 'active' uniquement sur l'onglet sélectionné s'il existe
+  if (navId) {
+    const activeLink = document.getElementById(navId);
+    if (activeLink) {
+      activeLink.classList.add("active");
+    }
+  }
 }

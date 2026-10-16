@@ -13,25 +13,33 @@
   <header>
     <h1>LicornKibri's contests</h1>
     <nav class="navbar">
-      <div class="nav-links">
+      <div class="nav-item">
         <a href="#" id="nav-home" class="active">Accueil</a>
+      </div>
+      <div class="nav-item">
         <a href="#" id="nav-contests">Concours</a>
+      </div>
+      <div class="nav-item">
         <a href="#" id="nav-artists">Artistes</a>
-        
-        <!-- Menu déroulant Liens -->
-        <div class="dropdown">
-          <button class="dropdown-btn">Liens ▾</button>
-          <div class="dropdown-content">
-            <a href="https://discord.gg/CPRnPhcCJe" target="_blank">Discord</a>
-            <a href="https://www.twitch.tv/licornkibri_" target="_blank">Twitch</a>
-          </div>
+      </div>
+      
+      <!-- Menu déroulant Liens -->
+      <div class="nav-item dropdown">
+        <button class="dropdown-btn">Liens ▾</button>
+        <div class="dropdown-content">
+          <a href="https://discord.gg/CPRnPhcCJe" target="_blank">Discord</a>
+          <a href="https://www.twitch.tv/licornkibri_" target="_blank">Twitch</a>
         </div>
       </div>
 
       <!-- Barre de recherche -->
-      <div class="search-box">
-        <input type="text" placeholder="Rechercher...">
-        <button type="button"><img src="./images/site_images/magnifying-glass-1976105_1280.png" height=20 px></img></button> 
+      <div class="nav-item search-box-wrapper">
+        <div class="search-box">
+          <input type="text" placeholder="Rechercher...">
+          <button type="button">
+            <img src="./images/site_images/magnifying-glass-1976105_1280.png" alt="Search" height="12">
+          </button>
+        </div>
       </div>
     </nav>
   </header>
