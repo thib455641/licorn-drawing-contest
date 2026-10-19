@@ -48,6 +48,18 @@ function renderHome() {
   const main = document.getElementById("main-content");
   main.innerHTML = "";
 
+  // 1. Afficher le/les vainqueur(s) du dernier concours terminé en date
+  const lastContestWithWinners = getLastFinishedContestWithWinners();
+  if (lastContestWithWinners) {
+    // MODIFICATION ICI : On passe 'true' pour indiquer que c'est le DERNIER concours
+    const winnerBanner = createWinnersBanner(lastContestWithWinners, true);
+    if (winnerBanner) {
+      // Le titre redondant a été enlevé ici comme demandé
+      main.appendChild(winnerBanner);
+    }
+  }
+
+  // 2. Affichage standard des concours
   allContests.forEach((contest, index) => {
     const startDate = formatDate(new Date(contest.start_date));
     let endDate = "En cours";
@@ -74,7 +86,7 @@ function renderHome() {
   });
 
   // Section Hors Concours
-  const orphanDrawings = allDrawings.filter(d => d.contest_id === "hors_concours" );
+  const orphanDrawings = allDrawings.filter(d => d.contest_id === "hors_concours");
   if (orphanDrawings.length > 0) {
     const orphanSection = document.createElement("section");
     orphanSection.innerHTML = `
@@ -150,7 +162,7 @@ function renderContestsPage() {
    4. VUE FILTRÉE : DESSINS D'UN ARTISTE PRÉCIS
    ========================================================================== */
 function renderArtistFiltered(artistName) {
-  setActiveNav(null);
+  setActiveNav("nav-artists");
   const main = document.getElementById("main-content");
   main.innerHTML = `
     <h2 class="contest-title-header">Dessins de : ${escapeHtml(artistName)}</h2>
@@ -169,18 +181,36 @@ function renderArtistFiltered(artistName) {
    5. VUE FILTRÉE : DESSINS D'UN CONCOURS PRÉCIS
    ========================================================================== */
 function renderContestFiltered(contestId, contestTitle) {
-  setActiveNav(null);
+  setActiveNav("nav-contests");
   const main = document.getElementById("main-content");
-  main.innerHTML = `
-    <h2 class="contest-title-header">Concours : ${escapeHtml(contestTitle)}</h2>
-    <div class="grid-5" id="filtered-grid"></div>
-  `;
+  main.innerHTML = "";
 
-  const grid = document.getElementById("filtered-grid");
+  const contest = allContests.find(c => c.id === contestId);
+
+  // Titre du concours
+  const titleHeader = document.createElement("h2");
+  titleHeader.classList.add("contest-title-header");
+  titleHeader.textContent = `Concours : ${contestTitle}`;
+  main.appendChild(titleHeader);
+
+  // Bannière des vainqueurs si elle existe pour ce concours
+  if (contest) {
+    // MODIFICATION ICI : On ne passe pas le 2ème paramètre (il sera 'false' par défaut)
+    const winnerBanner = createWinnersBanner(contest);
+    if (winnerBanner) {
+      main.appendChild(winnerBanner);
+    }
+  }
+
+  // Grille de tous les dessins du concours
+  const gridSection = document.createElement("div");
+  gridSection.classList.add("grid-5");
+  gridSection.id = "filtered-grid";
+  main.appendChild(gridSection);
+
   const contestDrawings = allDrawings.filter(d => d.contest_id === contestId);
-
   contestDrawings.forEach(drawing => {
-    grid.appendChild(createDrawingCard(drawing));
+    gridSection.appendChild(createDrawingCard(drawing));
   });
 }
 
@@ -205,12 +235,6 @@ function createDrawingCard(drawing) {
   imgElement.addEventListener("click", () => {
     openLightbox(drawing.local_path, `Dessin de ${drawing.author_display_name}`);
   });
-
-  // Clic sur le nom de l'artiste -> Filtre par artiste
-  //const authorLink = card.querySelector(".author-link");
-  //authorLink.addEventListener("click", () => {
-  //  renderArtistFiltered(drawing.author_display_name);
-  //});
 
   return card;
 }
@@ -269,9 +293,8 @@ function openLightbox(imageSrc, imageAlt = "Dessin") {
   lightboxImg.src = imageSrc;
   lightboxImg.alt = imageAlt;
   lightbox.style.display = "flex";
-
-
 }
+
 function setActiveNav(navId) {
   // Retire la classe 'active' de TOUS les liens de la navbar
   document.querySelectorAll(".navbar a").forEach(a => {
@@ -285,4 +308,56 @@ function setActiveNav(navId) {
       activeLink.classList.add("active");
     }
   }
+}
+
+/**
+ * Génère le composant HTML des vainqueurs pour un concours donné
+ * MODIFICATION : Ajout du paramètre isLatest (par défaut false)
+ */
+function createWinnersBanner(contest, isLatest = false) {
+  if (!contest.winners || contest.winners.length === 0) return null;
+
+  // Récupérer les objets "drawing" correspondants aux IDs renseignés dans contest.winners
+  const winningDrawings = allDrawings.filter(d => contest.winners.includes(d.id));
+  if (winningDrawings.length === 0) return null;
+
+  const banner = document.createElement("div");
+  banner.classList.add("winner-banner");
+
+  if (isLatest) {
+    banner.classList.add("home-winner-banner");
+  }
+
+  // MODIFICATION : Choix du texte en fonction du contexte
+  let titleText;
+  if (isLatest) {
+    // Texte pour la page d'accueil (image 4)
+    titleText = winningDrawings.length > 1 ? "🏆 Vainqueurs du dernier Concours 🏆" : "🏆 Vainqueur du dernier Concours 🏆";
+  } else {
+    // Texte pour la page du thème (image 5)
+    titleText = winningDrawings.length > 1 ? "🏆 Vainqueurs du Concours 🏆" : "🏆 Vainqueur du Concours 🏆";
+  }
+
+  banner.innerHTML = `
+    <h3>${titleText}</h3>
+    <div class="winner-grid"></div>
+  `;
+
+  const grid = banner.querySelector(".winner-grid");
+  winningDrawings.forEach(drawing => {
+    const card = createDrawingCard(drawing);
+    card.classList.add("winner-card");
+    grid.appendChild(card);
+  });
+
+  return banner;
+}
+
+/**
+ * Trouve le concours le plus récent qui possède au moins un vainqueur renseigné
+ */
+function getLastFinishedContestWithWinners() {
+  // allContests étant déjà trié du plus récent au plus ancien, 
+  // .find() va automatiquement nous retourner le premier concours ayant au moins 1 vainqueur.
+  return allContests.find(c => Array.isArray(c.winners) && c.winners.length > 0);
 }

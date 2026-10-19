@@ -3,12 +3,14 @@
     "id": "concours_1",
     "title": "Illusion carnival",
     "start_date": "2026-09-20T01:10:24.429290+00:00",
-    "image": "./images/contest_images/capsule_616x353.jpg"
+    "image": "./images/contest_images/capsule_616x353.jpg",
+    "winners": ["1554896651569725450","1554894179468050513","1554894178037661796"]
   },
   {
     "id": "concours_2",
     "title": "horreur",
     "start_date": "2026-10-12T08:11:30.926429+00:00",
-    "image": "./images/contest_images/images.jpg"
+    "image": "./images/contest_images/images.jpg",
+    "winners": []
   }
 ]

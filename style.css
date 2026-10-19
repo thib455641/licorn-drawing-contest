@@ -285,3 +285,37 @@ main {
   text-align: center;
   border-top: 2px solid #354d6e;
 }
+/* --- ENCADRÉ GAGNANTA (WINNERS) --- */
+.winner-banner {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(53, 77, 110, 0.8));
+  border: 2px solid #ffd700;
+  border-radius: 8px;
+  padding: 20px;
+  margin-top: 30px;
+  margin-bottom: 130px;
+  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.2);
+}
+
+.winner-banner.home-winner-banner {
+  margin-top: 110px;
+}
+
+.winner-banner h3 {
+  font-size: 1.4rem;
+  color: #ffd700;
+  margin-bottom: 15px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.winner-grid {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.winner-card {
+  max-width: 300px;
+  width: 100%;
+}

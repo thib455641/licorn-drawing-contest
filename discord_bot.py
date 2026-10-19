@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 import aiohttp
 
 # --- CONFIGURATION ---
-TOKEN_DISCORD = "M**8"
+TOKEN_DISCORD = "M...8"
 CHANNEL_ID = 1544700845180981268
 DOWNLOAD_FOLDER = "./images/drawings"
 PFP_FOLDER = "./images/pfp"
@@ -69,7 +69,8 @@ async def new_contest(ctx, *, title: str):
     contests.append({
         "id": new_id,
         "title": title,
-        "start_date": now_iso
+        "start_date": now_iso,
+        "winners":[]
     })
     
     save_json(CONTESTS_FILE, contests)
