@@ -34,12 +34,15 @@
 
       <!-- Barre de recherche -->
       <div class="nav-item search-box-wrapper">
-        <div class="search-box">
-          <input type="text" placeholder="Rechercher...">
-          <button type="button">
+        <div class="search-box" id="search-box-container">
+          <div id="search-tags-container">
+            <input type="text" id="search-input" placeholder="Rechercher..." autocomplete="off">
+          </div>
+          <button type="button" id="search-btn">
             <img src="./images/site_images/magnifying-glass-1976105_1280.png" alt="Search" height="12">
           </button>
         </div>
+        <div id="search-suggestions" class="search-suggestions"></div>
       </div>
     </nav>
   </header>

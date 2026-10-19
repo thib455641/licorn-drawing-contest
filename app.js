@@ -27,6 +27,7 @@ async function initApp() {
 
     // Afficher la page d'accueil par défaut
     renderHome();
+    setupSearchLogic()
 
   } catch (err) {
     console.error(err);
@@ -360,4 +361,191 @@ function getLastFinishedContestWithWinners() {
   // allContests étant déjà trié du plus récent au plus ancien, 
   // .find() va automatiquement nous retourner le premier concours ayant au moins 1 vainqueur.
   return allContests.find(c => Array.isArray(c.winners) && c.winners.length > 0);
+}
+
+// Tableau qui stocke les filtres actuellement validés (ex: [{ type: 'author', value: 'MaaLyx' }])
+let selectedFilters = [];
+
+// Écouteurs d'événements pour la recherche (à appeler dans initApp ou DOMContentLoaded)
+function setupSearchLogic() {
+  const input = document.getElementById("search-input");
+  const suggestionsBox = document.getElementById("search-suggestions");
+  const searchBtn = document.getElementById("search-btn");
+
+  if (!input || !suggestionsBox) return;
+
+  // 1. Détection de la saisie utilisateur
+  input.addEventListener("input", () => {
+    const query = input.value.trim().toLowerCase();
+
+    // Condition : au moins 2 caractères tapés
+    if (query.length < 2) {
+      suggestionsBox.style.display = "none";
+      return;
+    }
+
+    const suggestions = getSearchSuggestions(query);
+    renderSuggestions(suggestions);
+  });
+
+  // 2. Touche Entrée sur le champ de recherche
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      suggestionsBox.style.display = "none";
+      performFilteredSearch();
+    }
+  });
+
+  // 3. Clic sur le bouton Loupe
+  if (searchBtn) {
+    searchBtn.addEventListener("click", () => {
+      suggestionsBox.style.display = "none";
+      performFilteredSearch();
+    });
+  }
+
+  // Clic en dehors pour fermer les suggestions
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest(".search-box-wrapper")) {
+      suggestionsBox.style.display = "none";
+    }
+  });
+}
+
+/**
+ * Récupère les suggestions (Artistes & Concours) correspondant à la requête
+ */
+function getSearchSuggestions(query) {
+  const results = [];
+
+  // Artistes uniques
+  const artists = new Set(allDrawings.map(d => d.author_display_name).filter(Boolean));
+  artists.forEach(artist => {
+    if (artist.toLowerCase().includes(query)) {
+      // Éviter de proposer un filtre déjà sélectionné
+      if (!selectedFilters.some(f => f.type === 'author' && f.value.toLowerCase() === artist.toLowerCase())) {
+        results.push({ type: 'author', label: artist, value: artist });
+      }
+    }
+  });
+
+  // Titres de concours uniques
+  allContests.forEach(contest => {
+    if (contest.title && contest.title.toLowerCase().includes(query)) {
+      if (!selectedFilters.some(f => f.type === 'contest' && f.value.toLowerCase() === contest.title.toLowerCase())) {
+        results.push({ type: 'contest', label: contest.title, value: contest.title, contestId: contest.id });
+      }
+    }
+  });
+
+  return results;
+}
+
+/**
+ * Affiche la liste des suggestions dans le DOM
+ */
+function renderSuggestions(suggestions) {
+  const suggestionsBox = document.getElementById("search-suggestions");
+  suggestionsBox.innerHTML = "";
+
+  if (suggestions.length === 0) {
+    suggestionsBox.style.display = "none";
+    return;
+  }
+
+  suggestions.forEach(item => {
+    const div = document.createElement("div");
+    div.classList.add("suggestion-item");
+    div.innerHTML = `
+      <span>${escapeHtml(item.label)}</span>
+      <span class="suggestion-type">${item.type === 'author' ? 'Artiste' : 'Concours'}</span>
+    `;
+
+    // Clic sur une proposition -> Ajout du filtre tagué
+    div.addEventListener("click", () => {
+      addFilterTag(item);
+      document.getElementById("search-input").value = "";
+      suggestionsBox.style.display = "none";
+    });
+
+    suggestionsBox.appendChild(div);
+  });
+
+  suggestionsBox.style.display = "block";
+}
+
+/**
+ * Ajoute un filtre validé sous forme de tag (pill) bleu
+ */
+function addFilterTag(filterItem) {
+  selectedFilters.push(filterItem);
+
+  const tagsContainer = document.getElementById("search-tags-container");
+  const input = document.getElementById("search-input");
+
+  const tagEl = document.createElement("div");
+  tagEl.classList.add("search-tag");
+  tagEl.innerHTML = `
+    <span class="remove-tag">×</span>
+    <span>${escapeHtml(filterItem.label)}</span>
+  `;
+
+  // Clic sur '×' pour supprimer le filtre
+  tagEl.querySelector(".remove-tag").addEventListener("click", () => {
+    selectedFilters = selectedFilters.filter(f => !(f.type === filterItem.type && f.value === filterItem.value));
+    tagEl.remove();
+  });
+
+  // Insérer le tag juste avant l'input
+  tagsContainer.insertBefore(tagEl, input);
+  input.focus();
+}
+
+/**
+ * Exécute la recherche et affiche tous les dessins correspondant aux filtres validés
+ */
+function performFilteredSearch() {
+  setActiveNav(null); // Désactive l'étoile des onglets fixes
+
+  const main = document.getElementById("main-content");
+  main.innerHTML = "";
+
+  if (selectedFilters.length === 0) {
+    main.innerHTML = `<h2 class="contest-title-header">Recherche</h2><p>Veuillez sélectionner au moins un filtre dans la barre de recherche.</p>`;
+    return;
+  }
+
+  // Filtrer la liste globale des dessins selon TOUS les filtres validés
+  const matchingDrawings = allDrawings.filter(drawing => {
+    return selectedFilters.every(filter => {
+      if (filter.type === 'author') {
+        return drawing.author_display_name && drawing.author_display_name.toLowerCase() === filter.value.toLowerCase();
+      }
+      if (filter.type === 'contest') {
+        return drawing.contest_title && drawing.contest_title.toLowerCase() === filter.value.toLowerCase();
+      }
+      return false;
+    });
+  });
+
+  // Titre de résumé des filtres
+  const filterNames = selectedFilters.map(f => f.label).join(", ");
+  const titleHeader = document.createElement("h2");
+  titleHeader.classList.add("contest-title-header");
+  titleHeader.textContent = `Résultats pour : ${filterNames} (${matchingDrawings.length})`;
+  main.appendChild(titleHeader);
+
+  // Grille des résultats
+  const gridSection = document.createElement("div");
+  gridSection.classList.add("grid-5");
+  
+  if (matchingDrawings.length > 0) {
+    matchingDrawings.forEach(drawing => {
+      gridSection.appendChild(createDrawingCard(drawing));
+    });
+    main.appendChild(gridSection);
+  } else {
+    main.appendChild(document.createTextNode("Aucun dessin ne correspond à cette combinaison de filtres."));
+  }
 }

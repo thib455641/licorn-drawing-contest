@@ -137,6 +137,7 @@ header h1 {
 
 /* --- SEARCH BAR --- */
 .search-box-wrapper {
+  position: relative;
   padding: 4px;
 }
 
@@ -144,31 +145,105 @@ header h1 {
   display: flex;
   align-items: center;
   width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.6);
+  min-height: 28px;
 }
 
-.search-box input {
+#search-tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
   flex: 1;
+  padding: 2px 4px;
   min-width: 0;
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  border-radius: 3px 0 0 3px;
-  padding: 4px 6px;
+}
+.search-tag {
+  display: inline-flex;
+  align-items: center;
+  background-color: #007bff;
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+
+.search-tag .remove-tag:hover {
+  color: #ff4d4d;
+}
+
+.search-tag .remove-tag {
+  margin-right: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+#search-input {
+  flex: 1;
+  min-width: 60px;
+  border: none;
+  background: transparent;
   outline: none;
   font-size: clamp(0.65rem, 1.5vw, 0.85rem);
-  height: 28px;
-  background: rgba(255, 255, 255, 0.6); /* Optionnel : fond semi-transparent pour l'input */
+  color: #333;
+  height: 24px;
 }
+
 
 .search-box button {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: transparent; /* Transparence au lieu de #eee */
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  border-left: none;
-  border-radius: 0 3px 3px 0;
+  background: transparent;
+  border: none;
+  border-left: 1px solid rgba(0, 0, 0, 0.2);
   padding: 0 8px;
   cursor: pointer;
   height: 28px;
+}
+
+.search-suggestions {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background-color: #354d6e; 
+  border: 1px solid #f4f4f4;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  max-height: 250px;
+  overflow-y: auto;
+  border-radius: 0 0 4px 4px;
+}
+
+.suggestion-item {
+  padding: 8px 12px;
+  color: #ffffff;
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #f4f4f4;
+}
+
+.suggestion-item:last-child {
+  border-bottom: none;
+}
+
+.suggestion-item:hover {
+  background-color: #007bff;
+}
+
+.suggestion-type {
+  font-size: 0.7rem;
+  opacity: 0.7;
+  text-transform: uppercase;
 }
 /* --- CONTENU & SECTIONS --- */
 main {
